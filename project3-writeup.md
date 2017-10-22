@@ -304,25 +304,26 @@ The trained SVM model will classfied objects at line, clf.predict(scaler.transfo
 
 Below are the results of 3 scene.
 ##### Scene1
-I use Scene1 to verify whether the pipeline is working. It has only 3 objects, quite simpler to observe error.
+I use Scene1 to verify whether the pipeline is working. It has only 3 objects, simpler to observe error.
 ![scene1](images/test1.png)
 [output_1.yaml](pr2_robot/scripts/output-1/output-1.yaml)
 
 ##### Scene2
-Scene2 is slight complicated than Scene1 with 2 more objects.
+Scene2 is slightly complicated than Scene1 with 2 more objects.
 ![scene2](images/test2.png)
 [output_2.yaml](pr2_robot/scripts/output-1/output-2.yaml)
 
 ##### Scene3
 Scene3 is the most complicated scene with 8 objects. Not only that, glue and book are very close to each other. From the angle of the camera, they look like 1 object.
-I use Scene3 to fine tune Euclidean Clustering stage and SVM Model Training.
+I can only use Scene3 to fine tune Euclidean Clustering stage and SVM Model Training.
 ![scene3](images/test3.png)
 [output_3.yaml](pr2_robot/scripts/output-1/output-3.yaml)
 
 
 ### Conclusion
-I learnt a lot on point cloud perception pipeline from this project. I get to remove the noise from point cloud data, downsample it, create a 3d zone to retain the data. After that, I can segmentate them into objects and apply machine learning technique to recognize those objects based on features of color and surface normal. This is as cool as creating iPhoneX faceID implementation.  
-I run the project on native Ubuntu and it basically fully utilize all i7-7500u CPU cores. I use simple scene to verify the pipeline, and the most complicated scene to fine tuning parameters in various pipeline. I think it is important to point out to students that ROS is really CPU heavy application before students enrolled this course.
+I learnt a lot about point cloud perception pipeline from this project. I get to remove the noise from point cloud data, downsample it, create a 3d zone to retain the data. After that, I can segmentate them into objects and apply machine learning technique to recognize those objects, based on features of color and surface normal. This is as cool as creating iPhoneX faceID implementation.  
+
+I run the project on native Ubuntu and it basically fully utilize all i7-7500u CPU cores. I use simple scene to verify the pipeline, and the most complicated scene to fine tuning parameters in various pipeline. I think it is important to point out to potential students that ROS is really CPU intensive, before students enrolled this course.
 Again, I wonder how I can apply reinforcement learning to tune the parameters in the pipeline. The logic of rewarding function for each stage in the pipeline, is the key to have parameters auto tuned by RL.
 
 
