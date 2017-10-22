@@ -46,7 +46,7 @@ To remove the noise around objects, I apply statistical outlier filter of **20**
 ![statFilteringResult](images/stat-filtering.png)
 
 ##### Voxel Grid Downsampling 
-Next, I apply Voxel Grid Downsampling to reduce number of points in Point Cloud. this is to reduce processing power requirement for the pipeline. I applied LEAF_SIZE of **0.01m** which reduces 87% of points, from 426,373 points to 51,836 points. 
+Next, I apply Voxel Grid Downsampling to reduce number of points in Point Cloud. This reduces processing power requirement for subsequent pipeline. I applied LEAF_SIZE of **0.01m** which reduces 87% of points, from 426,373 points to 51,836 points. 
 
 ```python
 
@@ -61,7 +61,7 @@ Next, I apply Voxel Grid Downsampling to reduce number of points in Point Cloud.
 ![VoxelGridDownSampling](images/vox.png)
 
 ##### Passthrough filter
-In Passthrough filter stage, I enable the point cloud data to be retained in the range of  **0.63** and **1** for in **Z axis** and **0.35** and **1** for **X** axis filtering. This removes table and dropbox point cloud data in the scene.
+In Passthrough filter stage, I enable the point cloud data to be retained within the range of  **0.63** to **1** in **Z axis** and **0.35** to **1** in **X** axis filtering. This removes table and dropbox point cloud data in the scene.
 
 ```python
     #PassThrough Filter
@@ -108,7 +108,7 @@ For RANSAC plane segmentation, the distance threshold was to set to **0.01m** of
 
 #### 2. Exercise 2 steps: Pipeline including clustering for segmentation implemented.  
 ##### Euclidean Clustering 
-I apply Euclidean Clustering to segmentate objects out in point cloud. We need to apply trial and error method to find out the parameters. Object points count are heavily depends on previous stages, especially Voxel Grid Downsampling stage.
+I apply Euclidean Clustering to segmentate objects out in point cloud. We need to apply trial and error method to find out parameters. Object points count is heavily affecting from previous stages, especially Voxel Grid Downsampling stage.
 If ClusterTolerance is too large, it removes small objects, but if ClusterTolerance is too small, it creates more objects for detection. I set MaxClusterSize to 800 which doesn't remove big object like snack, but if i set to 500, snack object will be break down to 2 smaller objects, and failed object detection.  
 Eventually, I set **0.03** as ClusterTolerance, MinClusterSize at **30**, and MaxClusterSize at **800**. 
 
@@ -189,8 +189,8 @@ models = ['biscuits', 'soap','soap2','book','glue','sticky_notes', 'snacks','era
     pickle.dump(labeled_features, open('training_set.sav', 'wb'))
 ```
 
-##### SVM Training
-For SVM training, linear SVC kernel is much faster and perform better than polynomial kernel. I changed cross validation fold to **10** as I have more data captured.
+##### SVM Model Training
+For SVM model training, linear SVC kernel is much faster and performs better than polynomial kernel. I changed cross validation fold to **10** as I have more data captured.
 ```python
 # Load training data from disk
 training_set = pickle.load(open('training_set.sav', 'rb'))
@@ -248,7 +248,7 @@ accuracy_score = metrics.accuracy_score(y_train, predictions)
 print('accuracy score: '+str(accuracy_score))
 ```
 ![accuracy score](images/svm_accuracy.png)
-The accuracy score increase from 85% for 50 data per object, to 92% for 200 data per object. This enable world 3 object detection to constantly exceed 75%.
+The accuracy score increase from 85% for 50 data per object, to 92% for 200 data per object. This enables world 3 object detection rate to constantly exceed 75%.
 ![confusion matrix](images/confusion_matrix.png)
 
 
@@ -264,7 +264,7 @@ To utilize trained SVM model, we have to load SVN model from pickle file.
 ```
 
 During Object Detection, same feature extraction procedures are required to match as per during SVM model training. 
-The trained SVM model will classfied objects at clf.predict(scaler.transform(feature.reshape(1,-1)))
+The trained SVM model will classfied objects at line, clf.predict(scaler.transform(feature.reshape(1,-1)))
 ```python
 
     for index, pts_list in enumerate(cluster_indices):
@@ -302,14 +302,28 @@ The trained SVM model will classfied objects at clf.predict(scaler.transform(fea
 
 #### 1. For all three tabletop setups (`test*.world`), perform object recognition, then read in respective pick list (`pick_list_*.yaml`). Next construct the messages that would comprise a valid `PickPlace` request output them to `.yaml` format.
 
-Below are the results of 3 world.
+Below are the results of 3 scene.
+##### Scene1
+I use Scene1 to verify whether the pipeline is working. It has only 3 objects, quite simpler to observe error.
+![scene1](images/test1.png)
+[output_1.yaml](pr2_robot/scripts/output-1/output-1.yaml)
+
+##### Scene2
+Scene2 is slight complicated than Scene1 with 2 more objects.
+![scene2](images/test2.png)
+[output_2.yaml](pr2_robot/scripts/output-1/output-2.yaml)
+
+##### Scene3
+Scene3 is the most complicated scene with 8 objects. Not only that, glue and book are very close to each other. From the angle of the camera, they look like 1 object.
+I use Scene3 to fine tune Euclidean Clustering stage and SVM Model Training.
+![scene3](images/test3.png)
+[output_3.yaml](pr2_robot/scripts/output-1/output-3.yaml)
 
 
-
-And here's another image! 
-![demo-2](https://user-images.githubusercontent.com/20687560/28748286-9f65680e-7468-11e7-83dc-f1a32380b89c.png)
-
-Spend some time at the end to discuss your code, what techniques you used, what worked and why, where the implementation might fail and how you might improve it if you were going to pursue this project further.  
+### Conclusion
+I learnt a lot on point cloud perception pipeline from this project. I get to remove the noise from point cloud data, downsample it, create a 3d zone to retain the data. After that, I can segmentate them into objects and apply machine learning technique to recognize those objects based on features of color and surface normal. This is as cool as creating iPhoneX faceID implementation.  
+I run the project on native Ubuntu and it basically fully utilize all i7-7500u CPU cores. I use simple scene to verify the pipeline, and the most complicated scene to fine tuning parameters in various pipeline. I think it is important to point out to students that ROS is really CPU heavy application before students enrolled this course.
+Again, I wonder how I can apply reinforcement learning to tune the parameters in the pipeline. The logic of rewarding function in each stage in the pipeline is the key to have great parameters auto tuned by RL.
 
 
 
