@@ -2,6 +2,7 @@
 
 ---
 
+````
 
 # Required Steps for a Passing Submission:
 1. Extract features and train an SVM model on new objects (see `pick_list_*.yaml` in `/pr2_robot/config/` for the list of models you'll be trying to identify). 
@@ -14,20 +15,11 @@
 8. Submit a link to your GitHub repo for the project or the Python code for your perception pipeline and your output `.yaml` files (3 `.yaml` files, one for each test world).  You must have correctly identified 100% of objects from `pick_list_1.yaml` for `test1.world`, 80% of items from `pick_list_2.yaml` for `test2.world` and 75% of items from `pick_list_3.yaml` in `test3.world`.
 9. Congratulations!  Your Done!
 
-# Extra Challenges: Complete the Pick & Place
-7. To create a collision map, publish a point cloud to the `/pr2/3d_map/points` topic and make sure you change the `point_cloud_topic` to `/pr2/3d_map/points` in `sensors.yaml` in the `/pr2_robot/config/` directory. This topic is read by Moveit!, which uses this point cloud input to generate a collision map, allowing the robot to plan its trajectory.  Keep in mind that later when you go to pick up an object, you must first remove it from this point cloud so it is removed from the collision map!
-8. Rotate the robot to generate collision map of table sides. This can be accomplished by publishing joint angle value(in radians) to `/pr2/world_joint_controller/command`
-9. Rotate the robot back to its original state.
-10. Create a ROS Client for the “pick_place_routine” rosservice.  In the required steps above, you already created the messages you need to use this service. Checkout the [PickPlace.srv](https://github.com/udacity/RoboND-Perception-Project/tree/master/pr2_robot/srv) file to find out what arguments you must pass to this service.
-11. If everything was done correctly, when you pass the appropriate messages to the `pick_place_routine` service, the selected arm will perform pick and place operation and display trajectory in the RViz window
-12. Place all the objects from your pick list in their respective dropoff box and you have completed the challenge!
-13. Looking for a bigger challenge?  Load up the `challenge.world` scenario and see if you can get your perception pipeline working there!
-
 ## [Rubric](https://review.udacity.com/#!/rubrics/1067/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
 ---
-````
+
 ### Writeup / README
 #### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  
 ````
@@ -36,11 +28,11 @@
 #### 1. Exercise 1 steps. Pipeline for filtering and RANSAC plane fitting implemented.
 We learnt Point Cloud Library APIs to implement filtering and RANSAC plane fitting in the class.
 
-The initial point cloud data is noisy.
+At the beginning, point cloud data is noisy.
+![noisy Point Cloud](images/init_cloud.png)
 
-TODO: init cloud
 
-First, I apply statistical outlier filter of **20** clusters and stddev_mult is **0.1**. The distance threshold will be equal to: mean + stddev_mult * stddev. Points will be classified as inlier if their average neighbor distance is below mean + stddev_mult * stddev.
+To remove the noise around object, I apply statistical outlier filter of **20** clusters and stddev_mult is **0.1**. The distance threshold will be equal to: mean + stddev_mult * stddev. Points will be classified as inlier if their average neighbor distance is below mean + stddev_mult * stddev.
 ```python
     # Statistical Outlier Filtering
     outlier_filter = cloud.make_statistical_outlier_filter()
@@ -152,8 +144,9 @@ Eventually, I set **0.03** as ClusterTolerance, MinClusterSize at **30**, and Ma
 
 
 #### 3. Exercise 3 Steps.  Features extracted and SVM trained.  Object recognition implemented.
-I capture data features on sensor_stick runtime. To push the object recognition accuracy to above 90%, I setup object capturing process to capture 200 data for each object.
-The features are captured in **HSV** color space, histogram bins in **128** and point normals.
+I capture data features under sensor_stick runtime. To push the object recognition accuracy to above 90%, I setup object capturing process to capture 200 data for each object.
+The features are captured in **HSV** color space and point normals with histogram bins in **128**.
+
 ```python
 models = ['biscuits', 'soap','soap2','book','glue','sticky_notes', 'snacks','eraser']
 
@@ -192,6 +185,7 @@ models = ['biscuits', 'soap','soap2','book','glue','sticky_notes', 'snacks','era
 
     pickle.dump(labeled_features, open('training_set.sav', 'wb'))
 ```
+
 
 For SVN training, linear SVC kernel is much faster and perform better than polynomial kernel. I changed cross validation fold to **10** as I have more data captured.
 ```python
@@ -254,6 +248,8 @@ print('accuracy score: '+str(accuracy_score))
 The accuracy score increase from 85% for 50 data per object, to 92% for 200 data per object. This enable world 3 object detection to constantly exceed 75%.
 ![confusion matrix](images/confusion_matrix.png)
 
+
+
 To utilize trained SVM model, we have to load SVN model from pickle file.
 ```python
     # Load Model From disk
@@ -265,6 +261,7 @@ To utilize trained SVM model, we have to load SVN model from pickle file.
 ```
 
 During Object Detection, same feature extraction procedures are required to match as per during SVM model training. 
+The trained SVM model will classfied objects at clf.predict(scaler.transform(feature.reshape(1,-1)))
 ```python
 
     for index, pts_list in enumerate(cluster_indices):
@@ -294,7 +291,6 @@ During Object Detection, same feature extraction procedures are required to matc
         do.cloud = ros_cluster
         detected_objects_list.append(do)
 ```
-
 ![Object detection world 3](images/output3.png)
 
 
