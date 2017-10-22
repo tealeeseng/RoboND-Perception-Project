@@ -1,3 +1,6 @@
+For my project writeup, please refer [project3-writeup.md](project3-writeup.md)
+Perception pipeline source code can be found at [project3.py](pr2_robot/scripts/project3.py)
+
 [![Udacity - Robotics NanoDegree Program](https://s3-us-west-1.amazonaws.com/udacity-robotics/Extra+Images/RoboND_flag.png)](https://www.udacity.com/robotics)
 # 3D Perception
 Before starting any work on this project, please complete all steps for [Exercise 1, 2 and 3](https://github.com/udacity/RoboND-Perception-Exercises). At the end of Exercise-3 you have a pipeline that can identify points that belong to a specific object.
