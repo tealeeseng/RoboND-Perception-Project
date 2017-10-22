@@ -323,7 +323,7 @@ I use Scene3 to fine tune Euclidean Clustering stage and SVM Model Training.
 ### Conclusion
 I learnt a lot on point cloud perception pipeline from this project. I get to remove the noise from point cloud data, downsample it, create a 3d zone to retain the data. After that, I can segmentate them into objects and apply machine learning technique to recognize those objects based on features of color and surface normal. This is as cool as creating iPhoneX faceID implementation.  
 I run the project on native Ubuntu and it basically fully utilize all i7-7500u CPU cores. I use simple scene to verify the pipeline, and the most complicated scene to fine tuning parameters in various pipeline. I think it is important to point out to students that ROS is really CPU heavy application before students enrolled this course.
-Again, I wonder how I can apply reinforcement learning to tune the parameters in the pipeline. The logic of rewarding function in each stage in the pipeline is the key to have great parameters auto tuned by RL.
+Again, I wonder how I can apply reinforcement learning to tune the parameters in the pipeline. The logic of rewarding function for each stage in the pipeline, is the key to have parameters auto tuned by RL.
 
 
 
