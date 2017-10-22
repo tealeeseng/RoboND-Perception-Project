@@ -94,9 +94,7 @@ def pcl_callback(pcl_msg):
     cloud_filtered = passthrough.filter()
 
     pcl.save(cloud_filtered, 'passthrough.pcd')
-    #
-    # rospy.loginfo('saved.');
-    # exit();
+
 
     #RANSAC Plane Segmentation
     seg = cloud_filtered.make_segmenter()
@@ -106,14 +104,14 @@ def pcl_callback(pcl_msg):
     seg.set_distance_threshold(max_distance)
     inliers, coeffcients = seg.segment()
 
-    # TODO: Extract inliers and outliers
+    #Extract inliers and outliers
     cloud_objects = cloud_filtered.extract(inliers, negative = True)
     cloud_background = cloud_filtered.extract(inliers, negative = False)
 
     pcl.save(cloud_objects, 'segmentation.pcd')
 
 
-    # TODO: Euclidean Clustering
+    #Euclidean Clustering
     white_cloud = XYZRGB_to_XYZ(cloud_objects)
     tree = white_cloud.make_kdtree()
 
@@ -124,7 +122,7 @@ def pcl_callback(pcl_msg):
     ec.set_SearchMethod(tree)
     cluster_indices = ec.Extract()
 
-    # TODO: Create Cluster-Mask Point Cloud to visualize each cluster separately
+    #Create Cluster-Mask Point Cloud to visualize each cluster separately
     cluster_color = get_color_list(len(cluster_indices))
     color_cluster_point_list = []
 
@@ -140,16 +138,12 @@ def pcl_callback(pcl_msg):
 
     pcl.save(cluster_cloud, 'Euclidean.pcd')
 
-    rospy.loginfo('saved.');
-    # exit();
-
-
-    # TODO: Convert PCL data to ROS messages
+    #Convert PCL data to ROS messages
     ros_cloud_objects = pcl_to_ros(cloud_objects)
     ros_cloud_backgroud = pcl_to_ros(cloud_background)
     ros_cluster_cloud = pcl_to_ros(cluster_cloud)
 
-    # TODO: Publish ROS messages
+    #Publish ROS messages
     pcl_objects_pub.publish(ros_cloud_objects)
     pcl_background_pub.publish(ros_cloud_backgroud)
     pcl_cluster_pub.publish(ros_cluster_cloud)
@@ -204,7 +198,7 @@ def pcl_callback(pcl_msg):
 def pr2_mover(object_list):
 
     # TODO: Initialize variables
-    test_num = 2
+    test_num = 1 
     output = []
 
     # TODO: Get/Read parameters
@@ -285,7 +279,7 @@ def pr2_mover(object_list):
         #     print "Service call failed: %s"%e
 
     # TODO: Output your request parameters into output yaml file
-    send_to_yaml('test-'+str(test_num)+'.yaml', output)
+    send_to_yaml('output-'+str(test_num)+'.yaml', output)
     rospy.loginfo("yaml ok.")
 
 
@@ -312,7 +306,7 @@ if __name__ == '__main__':
 
 
 
-    # TODO: Load Model From disk
+    # Load Model From disk
     model = pickle.load(open('model-200.sav', 'rb'))
     clf = model['classifier']
     encoder = LabelEncoder()
