@@ -34,10 +34,40 @@
 
 ### Exercise 1, 2 and 3 pipeline implemented
 #### 1. Complete Exercise 1 steps. Pipeline for filtering and RANSAC plane fitting implemented.
-We utilize opencv APIs to implement filtering and RANSAC plane filtering.
-In Passthrough filter stage, I enable the point cloud data to be retained for **0.63** and **1** for in **Z axis** and **0.35** and **1** for **X** axis filtering. 
+We learnt Point Cloud Library APIs to implement filtering and RANSAC plane fitting in the class.
 
-[FilteringResult](images/passthrough.png)
+The initial point cloud data is noisy.
+
+TODO: init cloud
+
+First, I apply statistical outlier filter of **20** clusters and stddev_mult is **0.1**. The distance threshold will be equal to: mean + stddev_mult * stddev. Points will be classified as inlier if their average neighbor distance is below mean + stddev_mult * stddev.
+```python
+    # Statistical Outlier Filtering
+    outlier_filter = cloud.make_statistical_outlier_filter()
+    outlier_filter.set_mean_k(20)
+    x=0.1
+    outlier_filter.set_std_dev_mul_thresh(x)
+    stat_cloud_filter = outlier_filter.filter()
+    pcl.save(stat_cloud_filter, 'stat.pcd')
+
+```
+![statFilteringResult](images/stat-filtering.png)
+
+Next, I apply Voxel Grid Downsampling to reduce number of points in Point Cloud. this is to reduce processing power requirement for the pipeline. I applied LEAF_SIZE of **0.01m** which reduces 87% of points, from 426,373 points to 51,836 points. 
+
+```python
+
+    #Voxel Grid Downsampling
+    vox = stat_cloud_filter.make_voxel_grid_filter()
+    LEAF_SIZE = 0.01
+    vox.set_leaf_size(LEAF_SIZE, LEAF_SIZE, LEAF_SIZE)
+    cloud_filtered = vox.filter()
+
+    pcl.save(cloud_filtered, 'vox.pcd')
+```
+![VoxelGridDownSampling](images/vox.png)
+
+In Passthrough filter stage, I enable the point cloud data to be retained in the range of  **0.63** and **1** for in **Z axis** and **0.35** and **1** for **X** axis filtering. This removes table and robotic arm points in the scene.
 
 ```python
     #PassThrough Filter
@@ -58,13 +88,13 @@ In Passthrough filter stage, I enable the point cloud data to be retained for **
     cloud_filtered = passthrough.filter()
 
     pcl.save(cloud_filtered, 'passthrough.pcd')
-    #
-    # rospy.loginfo('saved.');
-    # exit();
 ```
-For RANSAC plane segmentation, the distance threshold was to set to **0.01m** of method type **pcl.SAC_RANSAC**
+![FilteringResult](images/passthrough.png)
 
-[RansacSegmentation](images/ransac-segment.png)
+
+
+
+For RANSAC plane segmentation, the distance threshold was to set to **0.01m** of method type **pcl.SAC_RANSAC**
 ```python
     #RANSAC Plane Segmentation
     seg = cloud_filtered.make_segmenter()
@@ -81,6 +111,8 @@ For RANSAC plane segmentation, the distance threshold was to set to **0.01m** of
     pcl.save(cloud_objects, 'segmentation.pcd')
 
 ```
+![RansacSegmentation](images/ransac-segment.png)
+
 
 #### 2. Complete Exercise 2 steps: Pipeline including clustering for segmentation implemented.  
 
