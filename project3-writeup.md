@@ -31,7 +31,7 @@ We learnt Point Cloud Library APIs to implement filtering and RANSAC plane fitti
 At the beginning, point cloud data is noisy from RGB-D camera.
 ![noisy Point Cloud](images/init_cloud.png)
 
-#####Statistical outlier filter
+##### Statistical outlier filter
 To remove the noise around objects, I apply statistical outlier filter of **20** clusters with stddev_mult of **0.1**. The distance threshold will be equal to: mean + stddev_mult * stddev. Points will be classified as inlier if their average neighbor distance is below mean + stddev_mult * stddev.
 ```python
     # Statistical Outlier Filtering
@@ -45,7 +45,7 @@ To remove the noise around objects, I apply statistical outlier filter of **20**
 ```
 ![statFilteringResult](images/stat-filtering.png)
 
-#####Voxel Grid Downsampling 
+##### Voxel Grid Downsampling 
 Next, I apply Voxel Grid Downsampling to reduce number of points in Point Cloud. this is to reduce processing power requirement for the pipeline. I applied LEAF_SIZE of **0.01m** which reduces 87% of points, from 426,373 points to 51,836 points. 
 
 ```python
@@ -60,7 +60,7 @@ Next, I apply Voxel Grid Downsampling to reduce number of points in Point Cloud.
 ```
 ![VoxelGridDownSampling](images/vox.png)
 
-#####Passthrough filter
+##### Passthrough filter
 In Passthrough filter stage, I enable the point cloud data to be retained in the range of  **0.63** and **1** for in **Z axis** and **0.35** and **1** for **X** axis filtering. This removes table and dropbox point cloud data in the scene.
 
 ```python
@@ -85,7 +85,7 @@ In Passthrough filter stage, I enable the point cloud data to be retained in the
 ```
 ![FilteringResult](images/passthrough.png)
 
-#####RANSAC plane segmentation
+##### RANSAC plane segmentation
 For RANSAC plane segmentation, the distance threshold was to set to **0.01m** of method type **pcl.SAC_RANSAC**
 ```python
     #RANSAC Plane Segmentation
@@ -107,7 +107,7 @@ For RANSAC plane segmentation, the distance threshold was to set to **0.01m** of
 
 
 #### 2. Exercise 2 steps: Pipeline including clustering for segmentation implemented.  
-#####Euclidean Clustering 
+##### Euclidean Clustering 
 I apply Euclidean Clustering to segmentate objects out in point cloud. We need to apply trial and error method to find out the parameters. Object points count are heavily depends on previous stages, especially Voxel Grid Downsampling stage.
 If ClusterTolerance is too large, it removes small objects, but if ClusterTolerance is too small, it creates more objects for detection. I set MaxClusterSize to 800 which doesn't remove big object like snack, but if i set to 500, snack object will be break down to 2 smaller objects, and failed object detection.  
 Eventually, I set **0.03** as ClusterTolerance, MinClusterSize at **30**, and MaxClusterSize at **800**. 
@@ -252,7 +252,7 @@ The accuracy score increase from 85% for 50 data per object, to 92% for 200 data
 ![confusion matrix](images/confusion_matrix.png)
 
 
-#####Object Recognition
+##### Object Recognition
 To utilize trained SVM model, we have to load SVN model from pickle file.
 ```python
     # Load Model From disk
